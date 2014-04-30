@@ -7,22 +7,56 @@ require! {
 
 export
   'Cobbler':
-    'should return the result of a task': ->
-      r = {}
-      t = cobbler -> a: -> r
-      expect t.task \a .to.be r
-    'should call dependencies with results': ->
-      r = {}
-      a = expect.sinon.stub!
-      a.with-args \intermediate .returns r
-      t = cobbler ->
-        a: @dep \b a
-        b: -> 'intermediate'
-      expect t.task \a .to.be r
-      expect a .to.be.called-with \intermediate
-    'should return a list of dependency graph edges': ->
-      t = cobbler ->
-        a: @dep \b ->
-        b: ->
-
-      expect t.edges! .to.eql [[\a \b]]
+    'task':
+      'should return the result of a task': ->
+        r = {}
+        t = cobbler -> a: -> r
+        expect t.task \a .to.be r
+      'should resolve simple dependencies': ->
+        r = {}
+        a = expect.sinon.stub!
+        a.with-args \intermediate .returns r
+        t = cobbler ->
+          a: @dep \b a
+          b: -> 'intermediate'
+        expect t.task \a .to.be r
+        expect a .to.be.called-with \intermediate
+      'should resolve dependency chains': ->
+        a = expect.sinon.stub!
+        b = expect.sinon.stub!
+        a.with-args \b .returns \a
+        b.with-args \c .returns \b
+        t = cobbler ->
+          a: @dep \b a
+          b: @dep \c b
+          c: -> 'c'
+        expect t.task \a .to.be \a
+        expect a .to.be.called-with \b
+        expect b .to.be.called-with \c
+      'should resolve multiple dependencies': ->
+        a = expect.sinon.stub!
+        a.with-args \b \c .returns \a
+        t = cobbler ->
+          a: @dep <[ b c ]> a
+          b: -> 'b'
+          c: -> 'c'
+        expect t.task \a .to.be \a
+        expect a .to.be.called-with \b \c
+    'edges':
+      'should return a list of dependency graph edges with simple deps': ->
+        t = cobbler ->
+          a: @dep \b ->
+          b: ->
+        expect t.edges! .to.eql [[\a \b]]
+      'should return a list of dependency graph edges with deps chains': ->
+        t = cobbler ->
+          a: @dep \b ->
+          b: @dep \c ->
+          c: ->
+        expect t.edges! .to.eql [[\a \b], [\b \c]]
+      'should return a list of dependency graph edges with multiple deps': ->
+        t = cobbler ->
+          a: @dep <[ b c ]> ->
+          b: ->
+          c: ->
+        expect t.edges! .to.eql [[\a \b], [\a \c]]
