@@ -10,3 +10,6 @@ module.exports = class Cobbler
   dep: (deps, fn)->
     deps = [] ++ deps
     fn import {deps}
+
+  edges: ->
+    [[name, dep] for name, task of @tasks for dep in task[]deps]

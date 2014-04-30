@@ -20,3 +20,9 @@ export
         b: -> 'intermediate'
       expect t.task \a .to.be r
       expect a .to.be.called-with \intermediate
+    'should return a list of dependency graph edges': ->
+      t = cobbler ->
+        a: @dep \b ->
+        b: ->
+
+      expect t.edges! .to.eql [[\a \b]]
