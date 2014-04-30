@@ -1,11 +1,17 @@
+require! toposort
+
 module.exports = class Cobbler
   (spec)~>
     @tasks = spec.call this
 
   task: (name)->
-    task = @tasks[name]
-    results = [@task dep for dep in task[]deps]
-    task ...results
+    results = {}
+    order = toposort @edges name .reverse!
+    for t in (if order.length then order else [name])
+      task = @tasks[t]
+      args = [results[d] for d in task[]deps]
+      results[t] = task ...args
+    results[name]
 
   dep: (...deps, fn)->
     fn import {deps}

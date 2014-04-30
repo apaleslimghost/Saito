@@ -40,6 +40,21 @@ export
           c: -> 'c'
         expect t.task \a .to.be \a
         expect a .to.be.called-with \b \c
+      'should call each dependency once': ->
+        d = expect.sinon.stub!
+        t = cobbler ->
+          a: @dep \b \d ->
+          b: @dep \c ->
+          c: @dep \d ->
+          d: d
+        t.task \a
+        expect d .to.be.called-once!
+      'should barf on circular dependencies': ->
+        d = expect.sinon.stub!
+        t = cobbler ->
+          a: @dep \b ->
+          b: @dep \a ->
+        expect (-> t.task \a) .to.throw-error /Circular dependency: a → b → a/
     'edges':
       'should return a list of dependency graph edges with simple deps': ->
         t = cobbler ->
