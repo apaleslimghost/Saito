@@ -66,3 +66,8 @@ export
           c: ->
         expect t.edges \a .to.eql [[\b \c], [\a \b]]
         expect t.edges \d .to.eql [[\d \c]]
+      'should detect circular dependencies': ->
+        t = cobbler ->
+          a: @dep \b ->
+          b: @dep \a ->
+        expect (-> t.edges \a) .to.throw-error /Circular dependency: a → b → a/

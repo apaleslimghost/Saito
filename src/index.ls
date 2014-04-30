@@ -14,7 +14,8 @@ module.exports = class Cobbler
     | start? => @find-edges start
     | otherwise => [[name, dep] for name, task of @tasks for dep in task[]deps]
 
-  find-edges: (name)->
+  find-edges: (name, stack = [])->
+    throw new Error "Circular dependency: #{(stack ++ name).join ' → '}" if name in stack
     task = @tasks[name]
-    results = task[]deps.reduce ((list, dep)~> list ++ @find-edges dep), []
+    results = task[]deps.reduce ((list, dep)~> list ++ @find-edges dep, stack ++ name), []
     results ++ [[name, dep] for dep in task[]deps]
