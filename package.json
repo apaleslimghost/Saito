@@ -1,10 +1,10 @@
 {
-  "name": "cobbler",
+  "name": "cobb",
   "version": "0.0.0",
   "description": "task dependency specifier",
   "main": "lib",
   "scripts": {
-    "test": "redo test"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
