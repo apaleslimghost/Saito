@@ -7,8 +7,7 @@ module.exports = class Cobbler
     results = [@task dep for dep in task[]deps]
     task ...results
 
-  dep: (deps, fn)->
-    deps = [] ++ deps
+  dep: (...deps, fn)->
     fn import {deps}
 
   edges: ->

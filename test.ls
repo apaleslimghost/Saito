@@ -37,7 +37,7 @@ export
         a = expect.sinon.stub!
         a.with-args \b \c .returns \a
         t = cobbler ->
-          a: @dep <[ b c ]> a
+          a: @dep \b \c a
           b: -> 'b'
           c: -> 'c'
         expect t.task \a .to.be \a
@@ -56,7 +56,7 @@ export
         expect t.edges! .to.eql [[\a \b], [\b \c]]
       'should return a list of dependency graph edges with multiple deps': ->
         t = cobbler ->
-          a: @dep <[ b c ]> ->
+          a: @dep \b \c ->
           b: ->
           c: ->
         expect t.edges! .to.eql [[\a \b], [\a \c]]
