@@ -3,4 +3,10 @@ module.exports = class Cobbler
     @tasks = spec.call this
 
   task: (name)->
-    @tasks[name]!
+    task = @tasks[name]
+    results = [@task dep for dep in task[]deps]
+    task ...results
+
+  dep: (deps, fn)->
+    deps = [] ++ deps
+    fn import {deps}
