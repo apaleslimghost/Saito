@@ -8,13 +8,18 @@ module.exports = class Cobb
     results = {}
     order = toposort @edges name .reverse!
     for t in (if order.length then order else [name])
-      task = @tasks[t]
+      resolved = @resolve-task t
+      task = @tasks[resolved]
       args = [results[d] for d in task[]deps]
-      results[t] = task ...args
+      results[resolved] = task ...args
     results[name]
 
   dep: (...deps, fn)->
     fn import {deps}
+
+  resolve-task: (name)->
+    | name of @tasks => name
+    | otherwise => throw new ReferenceError "No such task #name"
 
   edges: (start)->
     | start? => @find-edges start
@@ -22,6 +27,6 @@ module.exports = class Cobb
 
   find-edges: (name, stack = [])->
     throw new Error "Circular dependency: #{(stack ++ name).join ' → '}" if name in stack
-    task = @tasks[name]
+    task = @tasks[@resolve-task name]
     results = task[]deps.reduce ((list, dep)~> list ++ @find-edges dep, stack ++ name), []
     results ++ [[name, dep] for dep in task[]deps]

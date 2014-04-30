@@ -55,6 +55,13 @@ export
           a: @dep \b ->
           b: @dep \a ->
         expect (-> t.task \a) .to.throw-error /Circular dependency: a → b → a/
+    'resolve-task':
+      'should find a task with a simple name': ->
+        t = cobb -> a:\task
+        expect t.resolve-task \a .to.be \a
+      'should throw if it can\'t find a task': ->
+        t = cobb -> a:\task
+        expect (-> t.resolve-task \b) .to.throw-error /No such task b/
     'edges':
       'should return a list of dependency graph edges with simple deps': ->
         t = cobb ->
