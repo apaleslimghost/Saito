@@ -1,6 +1,6 @@
 require! {
   cobbler: './lib'
-  expect: \karma-sinon-expect
+  'karma-sinon-expect'.expect
 }
 
 σ = (s)-> from ([] ++ s), {+objectMode}
