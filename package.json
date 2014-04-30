@@ -4,7 +4,8 @@
   "description": "task dependency specifier",
   "main": "lib",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "prepublish": "make"
   },
   "repository": {
     "type": "git",
