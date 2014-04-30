@@ -71,3 +71,13 @@ export
           a: @dep \b ->
           b: @dep \a ->
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → b → a/
+      'should detect transitive circular dependencies': ->
+        t = cobbler ->
+          a: @dep \b ->
+          b: @dep \c ->
+          c: @dep \a ->
+        expect (-> t.edges \a) .to.throw-error /Circular dependency: a → b → c → a/
+      'should detect reflexive circular dependencies': ->
+        t = cobbler ->
+          a: @dep \a ->
+        expect (-> t.edges \a) .to.throw-error /Circular dependency: a → a/
