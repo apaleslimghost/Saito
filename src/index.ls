@@ -10,5 +10,11 @@ module.exports = class Cobbler
   dep: (...deps, fn)->
     fn import {deps}
 
-  edges: ->
-    [[name, dep] for name, task of @tasks for dep in task[]deps]
+  edges: (start)->
+    | start? => @find-edges start
+    | otherwise => [[name, dep] for name, task of @tasks for dep in task[]deps]
+
+  find-edges: (name)->
+    task = @tasks[name]
+    results = task[]deps.reduce ((list, dep)~> list ++ @find-edges dep), []
+    results ++ [[name, dep] for dep in task[]deps]

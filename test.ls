@@ -3,8 +3,6 @@ require! {
   'karma-sinon-expect'.expect
 }
 
-σ = (s)-> from ([] ++ s), {+objectMode}
-
 export
   'Cobbler':
     'task':
@@ -60,3 +58,11 @@ export
           b: ->
           c: ->
         expect t.edges! .to.eql [[\a \b], [\a \c]]
+      'should return a minimal set of edges in case of unconnected tasks': ->
+        t = cobbler ->
+          a: @dep \b ->
+          b: @dep \c ->
+          d: @dep \c ->
+          c: ->
+        expect t.edges \a .to.eql [[\b \c], [\a \b]]
+        expect t.edges \d .to.eql [[\d \c]]
