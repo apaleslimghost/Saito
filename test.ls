@@ -1,20 +1,20 @@
 require! {
-  cobb: './lib'
+  saito: './lib'
   'karma-sinon-expect'.expect
 }
 
 export
-  'Cobbler':
+  'Saito':
     'task':
       'should return the result of a task': ->
         r = {}
-        t = cobb -> a: -> r
+        t = saito -> a: -> r
         expect t.task \a .to.be r
       'should resolve simple dependencies': ->
         r = {}
         a = expect.sinon.stub!
         a.with-args \intermediate .returns r
-        t = cobb ->
+        t = saito ->
           a: @dep \b a
           b: -> 'intermediate'
         expect t.task \a .to.be r
@@ -24,7 +24,7 @@ export
         b = expect.sinon.stub!
         a.with-args \b .returns \a
         b.with-args \c .returns \b
-        t = cobb ->
+        t = saito ->
           a: @dep \b a
           b: @dep \c b
           c: -> 'c'
@@ -34,7 +34,7 @@ export
       'should resolve multiple dependencies': ->
         a = expect.sinon.stub!
         a.with-args \b \c .returns \a
-        t = cobb ->
+        t = saito ->
           a: @dep \b \c a
           b: -> 'b'
           c: -> 'c'
@@ -42,7 +42,7 @@ export
         expect a .to.be.called-with \b \c
       'should call each dependency once': ->
         d = expect.sinon.stub!
-        t = cobb ->
+        t = saito ->
           a: @dep \b \d ->
           b: @dep \c ->
           c: @dep \d ->
@@ -51,37 +51,37 @@ export
         expect d .to.be.called-once!
       'should barf on circular dependencies': ->
         d = expect.sinon.stub!
-        t = cobb ->
+        t = saito ->
           a: @dep \b ->
           b: @dep \a ->
         expect (-> t.task \a) .to.throw-error /Circular dependency: a → b → a/
     'resolve-task':
       'should find a task with a simple name': ->
-        t = cobb -> a:\task
+        t = saito -> a:\task
         expect t.resolve-task \a .to.be \a
       'should throw if it can\'t find a task': ->
-        t = cobb -> a:\task
+        t = saito -> a:\task
         expect (-> t.resolve-task \b) .to.throw-error /No such task b/
     'edges':
       'should return a list of dependency graph edges with simple deps': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \b ->
           b: ->
         expect t.edges! .to.eql [[\a \b]]
       'should return a list of dependency graph edges with deps chains': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \b ->
           b: @dep \c ->
           c: ->
         expect t.edges! .to.eql [[\a \b], [\b \c]]
       'should return a list of dependency graph edges with multiple deps': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \b \c ->
           b: ->
           c: ->
         expect t.edges! .to.eql [[\a \b], [\a \c]]
       'should return a minimal set of edges in case of unconnected tasks': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \b ->
           b: @dep \c ->
           d: @dep \c ->
@@ -89,17 +89,17 @@ export
         expect t.edges \a .to.eql [[\b \c], [\a \b]]
         expect t.edges \d .to.eql [[\d \c]]
       'should detect circular dependencies': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \b ->
           b: @dep \a ->
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → b → a/
       'should detect transitive circular dependencies': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \b ->
           b: @dep \c ->
           c: @dep \a ->
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → b → c → a/
       'should detect reflexive circular dependencies': ->
-        t = cobb ->
+        t = saito ->
           a: @dep \a ->
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → a/

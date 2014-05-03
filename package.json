@@ -1,6 +1,6 @@
 {
-  "name": "cobb",
-  "version": "0.0.0",
+  "name": "saito",
+  "version": "0.1.0",
   "description": "task dependency specifier",
   "main": "lib",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/quarterto/Cobbler.git"
+    "url": "git://github.com/quarterto/Saito.git"
   },
   "keywords": [
     "tasks",
@@ -18,9 +18,9 @@
   "author": "Matt Brennan <mwrbrennan@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/quarterto/Cobbler/issues"
+    "url": "https://github.com/quarterto/Saito/issues"
   },
-  "homepage": "https://github.com/quarterto/Cobbler",
+  "homepage": "https://github.com/quarterto/Saito",
   "devDependencies": {
     "LiveScript": "^1.2.0",
     "mocha": "^1.18.2",

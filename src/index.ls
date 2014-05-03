@@ -1,6 +1,6 @@
 require! toposort
 
-module.exports = class Cobb
+module.exports = class Saito
   (spec)~>
     @tasks = spec.call this
 
