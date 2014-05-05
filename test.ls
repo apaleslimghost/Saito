@@ -109,15 +109,36 @@ export
         expect pattern ['%'] 'a' .to.have.property \match 'a'
       'prefixes':
         'should match': ->
-          expect pattern ['a%'] 'abdce' .to.have.property \match 'abdce'
+          expect pattern ['a%'] 'abcde' .to.have.property \match 'abcde'
         'should get the stem': ->
-          expect pattern ['a%'] 'abdce' .to.have.property \stem 'bdce'
+          expect pattern ['a%'] 'abcde' .to.have.property \stem 'bcde'
+        'should save the pattern': ->
+          expect pattern ['a%'] 'abcde' .to.have.property \pattern 'a%'
         'shouldn\'t match things that don\'t': ->
           expect pattern ['a%'] 'ghijk' .to.be void
+        'should match the shortest stem': ->
+          m = pattern [
+            'a%'
+            'abc%'
+          ] 'abcde'
+          expect m .to.have.property \match 'abcde'
+          expect m .to.have.property \stem 'de'
+          expect m .to.have.property \pattern 'abc%'
+
       'suffixes':
         'should match': ->
-          expect pattern ['%e'] 'abdce' .to.have.property \match 'abdce'
+          expect pattern ['%e'] 'abcde' .to.have.property \match 'abcde'
         'should get the stem': ->
-          expect pattern ['%e'] 'abdce' .to.have.property \stem 'abdc'
+          expect pattern ['%e'] 'abcde' .to.have.property \stem 'abcd'
+        'should save the pattern': ->
+          expect pattern ['%e'] 'abcde' .to.have.property \pattern '%e'
         'shouldn\'t match things that don\'t': ->
           expect pattern ['%e'] 'ghijk' .to.be void
+        'should match the shortest stem': ->
+          m = pattern [
+            '%e'
+            '%cde'
+          ] 'abcde'
+          expect m .to.have.property \match 'abcde'
+          expect m .to.have.property \stem 'ab'
+          expect m .to.have.property \pattern '%cde'
