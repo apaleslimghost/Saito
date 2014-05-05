@@ -1,5 +1,6 @@
 require! {
   saito: './lib'
+  './lib/pattern'
   'karma-sinon-expect'.expect
 }
 
@@ -103,3 +104,16 @@ export
         t = saito ->
           a: @dep \a ->
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → a/
+    'pattern':
+      'should match entire thing': ->
+        expect pattern '%' ['a'] .to.have.property \match 'a'
+      'prefixes':
+        'should match': ->
+          expect pattern 'a%' ['abdce'] .to.have.property \match 'abdce'
+        'should get the stem': ->
+          expect pattern 'a%' ['abdce'] .to.have.property \stem 'bdce'
+      'suffixes':
+        'should match': ->
+          expect pattern '%e' ['abdce'] .to.have.property \match 'abdce'
+        'should get the stem': ->
+          expect pattern '%e' ['abdce'] .to.have.property \stem 'abdc'
