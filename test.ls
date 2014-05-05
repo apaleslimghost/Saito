@@ -106,18 +106,18 @@ export
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → a/
     'pattern':
       'should match entire thing': ->
-        expect pattern '%' ['a'] .to.have.property \match 'a'
+        expect pattern ['%'] 'a' .to.have.property \match 'a'
       'prefixes':
         'should match': ->
-          expect pattern 'a%' ['abdce'] .to.have.property \match 'abdce'
+          expect pattern ['a%'] 'abdce' .to.have.property \match 'abdce'
         'should get the stem': ->
-          expect pattern 'a%' ['abdce'] .to.have.property \stem 'bdce'
+          expect pattern ['a%'] 'abdce' .to.have.property \stem 'bdce'
         'shouldn\'t match things that don\'t': ->
-          expect pattern 'a%' ['ghijk'] .to.be void
+          expect pattern ['a%'] 'ghijk' .to.be void
       'suffixes':
         'should match': ->
-          expect pattern '%e' ['abdce'] .to.have.property \match 'abdce'
+          expect pattern ['%e'] 'abdce' .to.have.property \match 'abdce'
         'should get the stem': ->
-          expect pattern '%e' ['abdce'] .to.have.property \stem 'abdc'
+          expect pattern ['%e'] 'abdce' .to.have.property \stem 'abdc'
         'shouldn\'t match things that don\'t': ->
-          expect pattern '%e' ['ghijk'] .to.be void
+          expect pattern ['%e'] 'ghijk' .to.be void
