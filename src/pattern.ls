@@ -9,7 +9,7 @@ filter = (f,a)--> a.filter f
 
 shortest-stem = last . (sort-by (.stem.length)) . filter Boolean
 
-module.exports = (patterns, path)-->
+exports.match = (patterns, path)-->
 	shortest-stem patterns.map (pattern)->
 		reg = compile pattern
 		{

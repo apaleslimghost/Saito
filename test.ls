@@ -110,18 +110,18 @@ export
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → a/
     'pattern':
       'should match entire thing': ->
-        expect pattern ['%'] 'a' .to.have.property \match 'a'
+        expect pattern.match ['%'] 'a' .to.have.property \match 'a'
       'prefixes':
         'should match': ->
-          expect pattern ['a%'] 'abcde' .to.have.property \match 'abcde'
+          expect pattern.match ['a%'] 'abcde' .to.have.property \match 'abcde'
         'should get the stem': ->
-          expect pattern ['a%'] 'abcde' .to.have.property \stem 'bcde'
+          expect pattern.match ['a%'] 'abcde' .to.have.property \stem 'bcde'
         'should save the pattern': ->
-          expect pattern ['a%'] 'abcde' .to.have.property \pattern 'a%'
+          expect pattern.match ['a%'] 'abcde' .to.have.property \pattern 'a%'
         'shouldn\'t match things that don\'t': ->
-          expect pattern ['a%'] 'ghijk' .to.be void
+          expect pattern.match ['a%'] 'ghijk' .to.be void
         'should match the shortest stem': ->
-          m = pattern [
+          m = pattern.match [
             'a%'
             'abc%'
           ] 'abcde'
@@ -131,15 +131,15 @@ export
 
       'suffixes':
         'should match': ->
-          expect pattern ['%e'] 'abcde' .to.have.property \match 'abcde'
+          expect pattern.match ['%e'] 'abcde' .to.have.property \match 'abcde'
         'should get the stem': ->
-          expect pattern ['%e'] 'abcde' .to.have.property \stem 'abcd'
+          expect pattern.match ['%e'] 'abcde' .to.have.property \stem 'abcd'
         'should save the pattern': ->
-          expect pattern ['%e'] 'abcde' .to.have.property \pattern '%e'
+          expect pattern.match ['%e'] 'abcde' .to.have.property \pattern '%e'
         'shouldn\'t match things that don\'t': ->
-          expect pattern ['%e'] 'ghijk' .to.be void
+          expect pattern.match ['%e'] 'ghijk' .to.be void
         'should match the shortest stem': ->
-          m = pattern [
+          m = pattern.match [
             '%e'
             '%cde'
           ] 'abcde'

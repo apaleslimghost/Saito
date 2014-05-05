@@ -22,7 +22,7 @@ module.exports = class Saito
 
   resolve-task: (name)->
     | name of @tasks => name
-    | pattern (Object.keys @tasks), name => that.pattern
+    | pattern.match (Object.keys @tasks), name => that.pattern
     | otherwise => throw new ReferenceError "No such task #name"
 
   edges: (start)->
