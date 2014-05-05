@@ -60,6 +60,7 @@ export
         t = saito ->
           '%.txt': -> 'a'
         expect t.task 'file.txt' .to.be 'a'
+
     'resolve-task':
       'should find a task with a simple name': ->
         t = saito -> a:\task
@@ -67,6 +68,7 @@ export
       'should throw if it can\'t find a task': ->
         t = saito -> a:\task
         expect (-> t.resolve-task \b) .to.throw-error /No such task b/
+
     'edges':
       'should return a list of dependency graph edges with simple deps': ->
         t = saito ->
@@ -108,6 +110,7 @@ export
         t = saito ->
           a: @dep \a ->
         expect (-> t.edges \a) .to.throw-error /Circular dependency: a → a/
+
     'pattern':
       'should match entire thing': ->
         expect pattern.match ['%'] 'a' .to.have.property \match 'a'
