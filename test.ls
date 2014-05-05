@@ -112,8 +112,12 @@ export
           expect pattern 'a%' ['abdce'] .to.have.property \match 'abdce'
         'should get the stem': ->
           expect pattern 'a%' ['abdce'] .to.have.property \stem 'bdce'
+        'shouldn\'t match things that don\'t': ->
+          expect pattern 'a%' ['ghijk'] .to.be void
       'suffixes':
         'should match': ->
           expect pattern '%e' ['abdce'] .to.have.property \match 'abdce'
         'should get the stem': ->
           expect pattern '%e' ['abdce'] .to.have.property \stem 'abdc'
+        'shouldn\'t match things that don\'t': ->
+          expect pattern '%e' ['ghijk'] .to.be void
