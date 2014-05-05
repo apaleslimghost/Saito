@@ -146,3 +146,10 @@ export
           expect m .to.have.property \match 'abcde'
           expect m .to.have.property \stem 'ab'
           expect m .to.have.property \pattern '%cde'
+      'interpolate': ->
+        'should put a thing where the percent is': ->
+          expect pattern.interpolate '%' 'a' .to.be 'a'
+        'should do prefixes': ->
+          expect pattern.interpolate 'a%' 'a' .to.be 'aa'
+        'should do suffixes': ->
+          expect pattern.interpolate '%a' 'a' .to.be 'aa'

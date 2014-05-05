@@ -17,3 +17,6 @@ exports.match = (patterns, path)-->
 			stem: that.1
 			pattern
 		} if path.match reg
+
+exports.interpolate = (pattern, value)-->
+	pattern.replace '%' value
