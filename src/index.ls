@@ -1,4 +1,7 @@
-require! toposort
+require! {
+  toposort
+  './pattern'
+}
 
 module.exports = class Saito
   (spec)~>
@@ -12,13 +15,14 @@ module.exports = class Saito
       task = @tasks[resolved]
       args = [results[d] for d in task[]deps]
       results[resolved] = task ...args
-    results[name]
+    results[@resolve-task name]
 
   dep: (...deps, fn)->
     fn import {deps}
 
   resolve-task: (name)->
     | name of @tasks => name
+    | pattern (Object.keys @tasks), name => that.pattern
     | otherwise => throw new ReferenceError "No such task #name"
 
   edges: (start)->

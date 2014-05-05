@@ -56,6 +56,10 @@ export
           a: @dep \b ->
           b: @dep \a ->
         expect (-> t.task \a) .to.throw-error /Circular dependency: a → b → a/
+      'should match tasks on patterns': ->
+        t = saito ->
+          '%.txt': -> 'a'
+        expect t.task 'file.txt' .to.be 'a'
     'resolve-task':
       'should find a task with a simple name': ->
         t = saito -> a:\task
