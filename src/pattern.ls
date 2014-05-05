@@ -10,13 +10,11 @@ filter = (f,a)--> a.filter f
 shortest-stem = last . (sort-by (.stem.length)) . filter Boolean
 
 exports.match = (patterns, path)-->
-	shortest-stem patterns.map (pattern)->
-		reg = compile pattern
-		{
-			match: that.0
-			stem: that.1
-			pattern
-		} if path.match reg
+	shortest-stem patterns.map (pattern)-> {
+		match: that.0
+		stem: that.1
+		pattern
+	} if path.match compile pattern
 
 exports.interpolate = (pattern, value)-->
 	pattern.replace '%' value
