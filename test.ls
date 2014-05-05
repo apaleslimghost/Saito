@@ -146,6 +146,25 @@ export
           expect m .to.have.property \match 'abcde'
           expect m .to.have.property \stem 'ab'
           expect m .to.have.property \pattern '%cde'
+
+      'middleixes':
+        'should match': ->
+          expect pattern.match ['a%e'] 'abcde' .to.have.property \match 'abcde'
+        'should get the stem': ->
+          expect pattern.match ['a%e'] 'abcde' .to.have.property \stem 'bcd'
+        'should save the pattern': ->
+          expect pattern.match ['a%e'] 'abcde' .to.have.property \pattern 'a%e'
+        'shouldn\'t match things that don\'t': ->
+          expect pattern.match ['a%e'] 'ghijk' .to.be void
+        'should match the shortest stem': ->
+          m = pattern.match [
+            'a%e'
+            'ab%de'
+          ] 'abcde'
+          expect m .to.have.property \match 'abcde'
+          expect m .to.have.property \stem 'c'
+          expect m .to.have.property \pattern 'ab%de'
+
       'interpolate': ->
         'should put a thing where the percent is': ->
           expect pattern.interpolate '%' 'a' .to.be 'a'
