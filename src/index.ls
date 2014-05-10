@@ -3,6 +3,8 @@ require! {
   './pattern'
 }
 
+find = (f,a)--> a.filter f .0
+
 module.exports = class Saito
   (spec)~>
     @tasks = spec.call this
@@ -13,7 +15,7 @@ module.exports = class Saito
     for t in (if order.length then order else [name])
       resolved = @resolve-task t
       task = @tasks[resolved]
-      args = [results[d] for d in task[]deps]
+      args = [results[@resolve-task d] for d in task[]deps]
       results[resolved] = task ...args
     results[@resolve-task name]
 
@@ -22,6 +24,7 @@ module.exports = class Saito
 
   resolve-task: (name)->
     | name of @tasks => name
+    | find (pattern.match [name], _), (Object.keys @tasks) => that
     | pattern.match (Object.keys @tasks), name => that.pattern
     | otherwise => throw new ReferenceError "No such task #name"
 
