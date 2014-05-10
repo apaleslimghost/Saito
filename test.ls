@@ -60,11 +60,37 @@ export
         t = saito ->
           '%.txt': -> 'a'
         expect t.task 'file.txt' .to.be 'a'
+      'templates':
+        'should run tasks by filling in templates': ->
+          t = saito ->
+            '%.a': ->'a'
+          expect t.task 'a.a' .to.be 'a'
+        'should prefer exact matches to templates': ->
+          t = saito ->
+            'a.a': ->'a'
+            '%.a': ->'b'
+          expect t.task 'a.a' .to.be 'a'
+        'should do dependencies by filling in templates': ->
+          t = saito ->
+            'a.a': ->'a'
+            '%.b': @dep '%.a' (.to-upper-case!)
+          expect t.task 'a.b' .to.be 'A'
+        #'should do transitive dependencies by filling in templates': ->
+        #  t = saito ->
+        #    '%.a': ->'b'
+        #    'a.a': ->'a'
+        #    '%.b': @dep '%.a' (.to-upper-case!)
+        #    'b.a': ->'c'
+        #    '%.c': @dep '%.b' (++ 'a')
+        #  expect t.task 'a.c' .to.be 'Aa'
 
     'resolve-task':
       'should find a task with a simple name': ->
         t = saito -> a:\task
         expect t.resolve-task \a .to.be \a
+      'should match patterns': ->
+        t = saito -> '%.txt':\task
+        expect t.resolve-task 'file.txt' .to.be '%.txt'
       'should throw if it can\'t find a task': ->
         t = saito -> a:\task
         expect (-> t.resolve-task \b) .to.throw-error /No such task b/
