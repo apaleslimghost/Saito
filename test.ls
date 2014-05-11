@@ -82,6 +82,31 @@ export
             '%.b': @dep '%.a' (.to-upper-case!)
           expect t.task 'a.b' .to.be 'A'
           expect t.task 'b.b' .to.be 'B'
+        'should fall back to wildcard if there isn\'t a specific rule': ->
+          t = saito ->
+            'a.a': -> 'a'
+            '%.a': -> 'b'
+          expect t.task 'a.a' .to.be 'a'
+          expect t.task 'b.a' .to.be 'b'
+        'should do transitive wildcard dependencies': ->
+          t = saito ->
+            '%.a': @dep '%.b' ('a' +)
+            '%.b': @dep '%.c' (.to-upper-case!)
+            'a.c': -> 'b'
+          expect t.task 'a.a' .to.be 'aB'
+        'should error if it can\'t find a concrete wildcard depencency': ->
+          t = saito ->
+            'a.a': ->'a'
+            '%.b': @dep '%.a' (.to-upper-case!)
+          expect (-> t.task 'b.a') .to.throw-error 'No such task b.a'
+        'should find concretes for transitive dependencies': ->
+          t = saito ->
+            '%.a': @dep '%.b' ('a' +)
+            '%.b': @dep '%.c' (.to-upper-case!)
+            'a.c': -> 'b'
+            'b.c': -> 'c'
+          expect t.task 'a.a' .to.be 'aB'
+          expect t.task 'b.a' .to.be 'aC'
 
     'resolve-task':
       'should find a task with a simple name': ->
