@@ -75,22 +75,21 @@ export
             'a.a': ->'a'
             '%.b': @dep '%.a' (.to-upper-case!)
           expect t.task 'a.b' .to.be 'A'
-        #'should do transitive dependencies by filling in templates': ->
-        #  t = saito ->
-        #    '%.a': ->'b'
-        #    'a.a': ->'a'
-        #    '%.b': @dep '%.a' (.to-upper-case!)
-        #    'b.a': ->'c'
-        #    '%.c': @dep '%.b' (++ 'a')
-        #  expect t.task 'a.c' .to.be 'Aa'
+        'should work out which wildcard dependency to use': ->
+          t = saito ->
+            'a.a': ->'a'
+            'b.a': ->'b'
+            '%.b': @dep '%.a' (.to-upper-case!)
+          expect t.task 'a.b' .to.be 'A'
+          expect t.task 'b.b' .to.be 'B'
 
     'resolve-task':
       'should find a task with a simple name': ->
         t = saito -> a:\task
-        expect t.resolve-task \a .to.be \a
+        expect t.resolve-task \a .to.eql name:\a
       'should match patterns': ->
         t = saito -> '%.txt':\task
-        expect t.resolve-task 'file.txt' .to.be '%.txt'
+        expect t.resolve-task 'file.txt' .to.eql name:'%.txt'
       'should throw if it can\'t find a task': ->
         t = saito -> a:\task
         expect (-> t.resolve-task \b) .to.throw-error /No such task b/
@@ -139,10 +138,10 @@ export
 
     'pattern':
       'should match entire thing': ->
-        expect pattern.match ['%'] 'a' .to.have.property \match 'a'
+        expect pattern.match ['%'] 'a' .to.have.property \name 'a'
       'prefixes':
         'should match': ->
-          expect pattern.match ['a%'] 'abcde' .to.have.property \match 'abcde'
+          expect pattern.match ['a%'] 'abcde' .to.have.property \name 'abcde'
         'should get the stem': ->
           expect pattern.match ['a%'] 'abcde' .to.have.property \stem 'bcde'
         'should save the pattern': ->
@@ -154,13 +153,13 @@ export
             'a%'
             'abc%'
           ] 'abcde'
-          expect m .to.have.property \match 'abcde'
+          expect m .to.have.property \name 'abcde'
           expect m .to.have.property \stem 'de'
           expect m .to.have.property \pattern 'abc%'
 
       'suffixes':
         'should match': ->
-          expect pattern.match ['%e'] 'abcde' .to.have.property \match 'abcde'
+          expect pattern.match ['%e'] 'abcde' .to.have.property \name 'abcde'
         'should get the stem': ->
           expect pattern.match ['%e'] 'abcde' .to.have.property \stem 'abcd'
         'should save the pattern': ->
@@ -172,13 +171,13 @@ export
             '%e'
             '%cde'
           ] 'abcde'
-          expect m .to.have.property \match 'abcde'
+          expect m .to.have.property \name 'abcde'
           expect m .to.have.property \stem 'ab'
           expect m .to.have.property \pattern '%cde'
 
       'middleixes':
         'should match': ->
-          expect pattern.match ['a%e'] 'abcde' .to.have.property \match 'abcde'
+          expect pattern.match ['a%e'] 'abcde' .to.have.property \name 'abcde'
         'should get the stem': ->
           expect pattern.match ['a%e'] 'abcde' .to.have.property \stem 'bcd'
         'should save the pattern': ->
@@ -190,7 +189,7 @@ export
             'a%e'
             'ab%de'
           ] 'abcde'
-          expect m .to.have.property \match 'abcde'
+          expect m .to.have.property \name 'abcde'
           expect m .to.have.property \stem 'c'
           expect m .to.have.property \pattern 'ab%de'
 
