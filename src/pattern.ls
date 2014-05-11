@@ -7,7 +7,7 @@ sort-by = (comp, arr)-->
 last = (.[it.length - 1])
 filter = (f,a)--> a.filter f
 
-shortest-stem = last . (sort-by (.stem.length)) . filter Boolean
+shortest-stem = last . (sort-by (.stem.length)) . filter (?)
 
 exports.match = (patterns, path)-->
 	shortest-stem patterns.map (pattern)-> {

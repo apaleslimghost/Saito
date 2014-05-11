@@ -89,7 +89,7 @@ export
         expect t.resolve-task \a .to.eql name:\a
       'should match patterns': ->
         t = saito -> '%.txt':\task
-        expect t.resolve-task 'file.txt' .to.eql name:'%.txt'
+        expect t.resolve-task 'file.txt' .to.have.property \pattern '%.txt'
       'should throw if it can\'t find a task': ->
         t = saito -> a:\task
         expect (-> t.resolve-task \b) .to.throw-error /No such task b/

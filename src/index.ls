@@ -4,6 +4,8 @@ require! {
 }
 
 find = (f,a)--> a.filter f .0
+flat-map = (f, xs)--> xs.reduce ((a,x)-> a ++ f x), []
+map = (f, xs)--> flat-map (-> [f it]), xs
 
 module.exports = class Saito
   (spec)~>
@@ -13,10 +15,10 @@ module.exports = class Saito
     results = {}
     order = toposort @edges name .reverse!
     for t in (if order.length then order else [name])
-      {name: resolved} = @resolve-task t
-      task = @tasks[resolved]
-      args = [results[@resolve-task d .name] for d in @get-deps task]
-      results[resolved] = task ...args
+      spec = @resolve-task t
+      task = @get-task spec
+      args = [results[@resolve-task d .name] for d in @get-deps task, spec]
+      results[spec.name] = task ...args
     results[@resolve-task name .name]
 
   dep: (...deps, fn)->
@@ -25,14 +27,15 @@ module.exports = class Saito
   resolve-task: (name)->
     | name of @tasks => {name}
     | find (pattern.match [name]), (Object.keys @tasks) => name: that
-    | pattern.match (Object.keys @tasks), name => name: that.pattern
+    | pattern.match (Object.keys @tasks), name => that
     | otherwise => throw new ReferenceError "No such task #name"
 
-  get-task: ({name})->
-    @tasks[name]
+  get-task: ({pattern, name})->
+    @tasks[pattern ? name]
 
-  get-deps: (task)->
-    task[]deps
+  get-deps: (task, spec = {})->
+    f = if spec.stem then map pattern.interpolate _, that else -> it
+    f task[]deps
 
   edges: (start)->
     | start? => @find-edges start
@@ -40,6 +43,7 @@ module.exports = class Saito
 
   find-edges: (name, stack = [])->
     throw new Error "Circular dependency: #{(stack ++ name).join ' → '}" if name in stack
-    task = @get-task @resolve-task name
-    results = @get-deps task .reduce ((list, dep)~> list ++ @find-edges dep, stack ++ name), []
-    results ++ [[name, dep] for dep in @get-deps task]
+    spec = @resolve-task name
+    task = @get-task spec
+    collect-deps = flat-map @find-edges _, stack ++ name
+    (collect-deps @get-deps task, spec) ++ [[name, dep] for dep in @get-deps task, spec]
