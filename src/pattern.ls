@@ -11,7 +11,7 @@ shortest-stem = last . (sort-by (.stem.length)) . filter Boolean
 
 exports.match = (patterns, path)-->
 	shortest-stem patterns.map (pattern)-> {
-		match: that.0
+		name: that.0
 		stem: that.1
 		pattern
 	} if path.match compile pattern
