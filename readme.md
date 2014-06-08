@@ -1,4 +1,4 @@
-Saito
+Saito [![Build Status](https://travis-ci.org/quarterto/Saito.svg?branch=master)](https://travis-ci.org/quarterto/Saito)
 =====
 
 Declarative task dependencies
