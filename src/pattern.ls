@@ -1,5 +1,5 @@
 compile = (pattern)->
-	//#{pattern.replace '%' /([^\/]+)/$}//
+	//#{pattern.replace '%' /(.+)/$}//
 
 sort-by = (comp, arr)-->
 	arr.sort (a,b)->

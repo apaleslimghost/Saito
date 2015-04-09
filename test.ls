@@ -218,6 +218,13 @@ export
           expect m .to.have.property \stem 'c'
           expect m .to.have.property \pattern 'ab%de'
 
+      'slashes':
+        'should match': ->
+          m = pattern.match ['src/%.js'] 'src/foo/bar.js'
+          expect m .to.have.property \name 'src/foo/bar.js'
+          expect m .to.have.property \stem 'foo/bar'
+          expect m .to.have.property \pattern 'src/%.js'
+
       'interpolate': ->
         'should put a thing where the percent is': ->
           expect pattern.interpolate '%' 'a' .to.be 'a'
