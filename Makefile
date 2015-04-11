@@ -7,5 +7,5 @@ lib/%.js: src/%.js
 	@mkdir -p $(@D)
 	node_modules/.bin/babel $< > $@
 
-test: all
+test: all test.js
 	./node_modules/.bin/mocha -u exports

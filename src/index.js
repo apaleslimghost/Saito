@@ -3,28 +3,28 @@ var toposort = require("toposort");
 var pattern  = require("./pattern");
 var iter     = require("es6-iterator");
 var Symbol   = require("es6-symbol");
-var {
-	concatMap, find
-} = require("data.array");
+var {concatMap, find} = require("data.array");
+var util     = require("util");
 
-function resolveTask(tasks, name) {
-	var task;
-
+function resolveSpec(tasks, name) {
 	if(name in tasks) {
 		return {name};
 	}
 
-	task = find(pattern.match([name]), Object.keys(tasks));
-	if(task.isJust) {
-		return {name: task.get()};
+	var maybeName = find(pattern.match([name]), Object.keys(tasks));
+	if(maybeName.isJust) {
+		return {name: maybeName.get()};
 	}
 
-	task = pattern.match(Object.keys(tasks), name);
-	if(task) {
-		return task;
-	}
+	var spec = pattern.match(Object.keys(tasks), name);
+	if(spec) return spec;
 
 	throw new ReferenceError(`No such task ${name}`);
+}
+
+function resolveTask(tasks, name) {
+	var spec = resolveSpec(tasks, name);
+	return {spec, task: getTask(tasks, spec)};
 }
 
 function getTask(tasks, {pattern, name}) {
@@ -46,8 +46,7 @@ function findEdges(tasks, name, stack = []) {
 		throw new Error(`Circular dependency: ${stack.concat(name).join(" → ")}`);
 	}
 
-	var spec = resolveTask(tasks, name);
-	var task = getTask(tasks, spec);
+	var {spec, task} = resolveTask(tasks, name);
 	var deps = getDeps(task, spec);
 
 	return concatMap(
@@ -68,21 +67,20 @@ function edges(tasks, start) {
 	}
 }
 
-function task(tasks, name) {
+function run(tasks, name) {
 	var results = {};
 	var order = toposort(edges(tasks, name)).reverse();
 
 	for(let t of iter(order.length ? order : [name])) {
-		let spec = resolveTask(tasks, t);
-		let taskFn = getTask(tasks, spec);
-		let args = getDeps(taskFn, spec).map(d => {
-			return results[resolveTask(tasks, d).name];
+		let {spec, task} = resolveTask(tasks, t);
+		let args = getDeps(task, spec).map(d => {
+			return results[resolveTask(tasks, d).spec.name];
 		});
 
-		results[spec.name] = taskFn(...args);
+		results[spec.name] = task(...args);
 	}
 
-	return results[resolveTask(tasks, name).name];
+	return results[resolveTask(tasks, name).spec.name];
 }
 
 module.exports = function factory(spec) {
@@ -95,7 +93,8 @@ module.exports = function factory(spec) {
 	});
 
 	return {
-		task: (name) => task(tasks, name),
+		task: util.deprecate((name) => run(tasks, name), 'task has been renamed run'),
+		run: (name) => run(tasks, name),
 		resolveTask: (name) => resolveTask(tasks, name),
 		edges: (start) => edges(tasks, start)
 	};
