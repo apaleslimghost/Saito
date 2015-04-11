@@ -24,7 +24,7 @@
   "devDependencies": {
     "babel": "^5.0.12",
     "karma-sinon-expect": "^0.1.4",
-    "mocha": "^1.18.2"
+    "mocha": "^2.2.4"
   },
   "dependencies": {
     "curry": "^1.2.0",
