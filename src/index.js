@@ -3,8 +3,11 @@ var toposort = require("toposort");
 var pattern  = require("./pattern");
 var iter     = require("es6-iterator");
 var Symbol   = require("es6-symbol");
+var WeakMap  = require("es6-weak-map");
 var {concatMap, find} = require("data.array");
 var util     = require("util");
+
+var depsStore = new WeakMap();
 
 function resolveSpec(tasks, name) {
 	if(name in tasks) {
@@ -32,7 +35,7 @@ function getTask(tasks, {pattern, name}) {
 }
 
 function getDeps(task, spec = {}) {
-	var deps = task.deps || [];
+	var deps = depsStore.get(task) || [];
 
 	if(spec.stem) {
 		return deps.map(d => pattern.interpolate(d, spec.stem));
@@ -87,7 +90,7 @@ module.exports = function factory(spec) {
 	var tasks = spec.call({
 		dep(...deps) {
 			var fn = deps.pop();
-			fn.deps = deps;
+			depsStore.set(fn, deps);
 			return fn;
 		}
 	});
