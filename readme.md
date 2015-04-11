@@ -14,9 +14,11 @@ Use
 ---
 
 ```javascript
-var env = require('saito')(() => ({
-	'%.upper': this.dep('%.lower', (str) => str.toUpperCase()),
-	'hello.lower': () => 'hello'
+var env = require('saito')(function () {
+	return {
+		'%.upper': this.dep('%.lower', (str) => str.toUpperCase()),
+		'hello.lower': () => 'hello'
+	}
 }))
 
 env.task('hello.upper') //⇒ HELLO
