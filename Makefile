@@ -8,4 +8,4 @@ lib/%.js: src/%.js
 	node_modules/.bin/babel $< > $@
 
 test: all
-	./node_modules/.bin/mocha -r LiveScript -u exports test.ls
+	./node_modules/.bin/mocha -u exports
