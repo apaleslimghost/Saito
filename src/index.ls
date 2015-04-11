@@ -22,6 +22,7 @@ module.exports = class Saito
     results[@resolve-task name .name]
 
   dep: (...deps, fn)->
+    #TODO use a WeakMap
     fn import {deps}
 
   resolve-task: (name)->
