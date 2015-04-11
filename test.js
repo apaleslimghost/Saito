@@ -2,6 +2,15 @@ var saito = require('./lib');
 var pattern = require('./lib/pattern');
 var expect = require('karma-sinon-expect').expect;
 
+function nthBack(n, cb) {
+  var calls = 0;
+  return function() {
+    if(++calls === n) {
+      cb.apply(this, arguments);
+    }
+  };
+}
+
 exports.Saito = {
   'task': {
     'should return the result of a task': function(){
@@ -218,6 +227,84 @@ exports.Saito = {
         });
         expect(t.run('a.a')).to.be('aB');
         expect(t.run('b.a')).to.be('aC');
+      }
+    },
+    'context': {
+      'should contain current spec': function(done) {
+        var t = saito(function() {
+          return {'a': function() {
+            expect(this).to.have.property('spec');
+            expect(this.spec).to.have.property('name', 'a');
+            done();
+          }};
+        });
+
+        t.run('a');
+      },
+      'should contain full task order': function(done) {
+        var t = saito(function() {
+          return {
+            'a': this.dep('b', function() {
+              expect(this).to.have.property('order');
+              expect(this.order).to.eql(['b', 'a']);
+              done();
+            }),
+            'b': function() {}
+          };
+        });
+        t.run('a');
+      },
+      'should contain parent task': function(done) {
+        var t = saito(function() {
+          return {
+            'a': this.dep('b', function() {
+              expect(this).to.have.property('parent', 'b');
+              done();
+            }),
+            'b': function() {}
+          };
+        });
+        t.run('a');
+      },
+      'should contain remaining tasks': function(done) {
+        var thrice = nthBack(3, done);
+        var t = saito(function() {
+          return {
+            'a': this.dep('b', function() {
+              expect(this.next).to.eql([]);
+              thrice();
+            }),
+            'b': this.dep('c', function() {
+              expect(this.next).to.eql(['a']);
+              thrice();
+            }),
+            'c': function() {
+              expect(this.next).to.eql(['b', 'a']);
+              thrice();
+            }
+          };
+        });
+        t.run('a');
+      },
+      'should contain previous tasks': function(done) {
+        var thrice = nthBack(3, done);
+        var t = saito(function() {
+          return {
+            'a': this.dep('b', function() {
+              expect(this.previous).to.eql(['c', 'b']);
+              thrice();
+            }),
+            'b': this.dep('c', function() {
+              expect(this.previous).to.eql(['c']);
+              thrice();
+            }),
+            'c': function() {
+              expect(this.previous).to.eql([]);
+              thrice();
+            }
+          };
+        });
+        t.run('a');
       }
     }
   },

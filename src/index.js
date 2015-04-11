@@ -74,14 +74,22 @@ function run(tasks, name) {
 	var results = {};
 	var order = toposort(edges(tasks, name)).reverse();
 
-	for(let t of iter(order.length ? order : [name])) {
-		let {spec, task} = resolveTask(tasks, t);
-		let args = getDeps(task, spec).map(d => {
+	(order.length ? order : [name]).forEach((t, i, order) => {
+		var {spec, task} = resolveTask(tasks, t);
+		var args = getDeps(task, spec).map(d => {
 			return results[resolveTask(tasks, d).spec.name];
 		});
 
-		results[spec.name] = task(...args);
-	}
+		var context = {
+			spec,
+			order,
+			parent: order[i - 1],
+			previous: order.slice(0, i),
+			next: order.slice(i + 1)
+		};
+
+		results[spec.name] = task.apply(context, args);
+	});
 
 	return results[resolveTask(tasks, name).spec.name];
 }
