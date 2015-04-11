@@ -1,5 +1,7 @@
-Saito [![Build Status](https://travis-ci.org/quarterto/Saito.svg?branch=master)](https://travis-ci.org/quarterto/Saito)
-=====
+<h1 align="center">
+	<img alt="Saito" src="logo.png" width="300"><br>
+	<a href="https://travis-ci.org/quarterto/Saito"><img alt="Build status" src="https://travis-ci.org/quarterto/Saito.svg?branch=master"></a>
+</h1>
 
 Declarative task dependencies
 
@@ -29,4 +31,4 @@ Saito builds a DAG of task dependencies, toposorts them and runs tasks in order.
 Licence
 -------
 
-MIT. &copy; 2014 Matt Brennan
+MIT. &copy; 2015 Matt Brennan
