@@ -2,6 +2,7 @@
 var toposort = require("toposort");
 var pattern  = require("./pattern");
 var iter     = require("es6-iterator");
+var Symbol   = require("es6-symbol");
 var {
 	concatMap, find
 } = require("data.array");
