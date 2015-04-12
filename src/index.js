@@ -1,6 +1,6 @@
 var toposort    = require("toposort");
 var util        = require("util");
-var anns        = require("./annotations");
+var context     = require("./context");
 var getDeps     = require("./deps");
 var resolveTask = require("./resolve");
 var edges       = require("./edges");
@@ -29,16 +29,8 @@ function run(tasks, name) {
 	return results[resolveTask(tasks, name).spec.name];
 }
 
-var specContext = {
-	dep(...deps) {
-		var fn = deps.pop();
-		anns.dep(...deps)(fn);
-		return fn;
-	}
-};
-
 module.exports = function factory(spec) {
-	var tasks = typeof spec === "function"? spec.call(specContext)
+	var tasks = typeof spec === "function"? spec.call(context)
 	          : typeof spec === "object"?   spec
 	          : /* otherwise */             false;
 
@@ -46,10 +38,5 @@ module.exports = function factory(spec) {
 		throw new TypeError(`${util.inspect(spec)} is not a valid task spec`);
 	}
 
-	return {
-		task: util.deprecate((name) => run(tasks, name), 'task has been renamed run'),
-		run: (name) => run(tasks, name),
-		resolveTask: (name) => resolveTask(tasks, name),
-		edges: (start) => edges(tasks, start)
-	};
+	return (name) => run(tasks, name);
 };

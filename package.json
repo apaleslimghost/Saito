@@ -23,10 +23,12 @@
   "homepage": "https://github.com/quarterto/Saito",
   "devDependencies": {
     "babel": "^5.0.12",
+    "expect.js": "^0.3.1",
     "jshint": "^2.7.0",
     "jshint-stylish": "^1.0.1",
-    "karma-sinon-expect": "^0.1.4",
-    "mocha": "^2.2.4"
+    "mocha": "^2.2.4",
+    "sinon": "^1.14.1",
+    "sinon-expect": "^0.2.0"
   },
   "dependencies": {
     "curry": "^1.2.0",
