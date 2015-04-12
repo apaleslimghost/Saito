@@ -12,6 +12,23 @@ function nthBack(n, cb) {
 }
 
 exports.Saito = {
+  'spec': {
+    'can be a function': function() {
+      expect(saito(function() {
+        return {a: function() { return 'a'; }};
+      }).run('a')).to.be('a');
+    },
+    'can be a plain object': function() {
+      expect(saito({
+        a: function() { return 'a'; }
+      }).run('a')).to.be('a');
+    },
+    'throws when it\'s something unexpected': function() {
+      expect(function() {
+        saito("ohai");
+      }).to.throwException(/'ohai' is not a valid task spec/);
+    }
+  },
   'task': {
     'should return the result of a task': function(){
       var r = {};

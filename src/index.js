@@ -83,14 +83,22 @@ function run(tasks, name) {
 	return results[resolveTask(tasks, name).spec.name];
 }
 
+var specContext = {
+	dep(...deps) {
+		var fn = deps.pop();
+		anns.dep(...deps)(fn);
+		return fn;
+	}
+};
+
 module.exports = function factory(spec) {
-	var tasks = spec.call({
-		dep(...deps) {
-			var fn = deps.pop();
-			anns.dep(...deps)(fn);
-			return fn;
-		}
-	});
+	var tasks = typeof spec === "function"? spec.call(specContext)
+	          : typeof spec === "object"?   spec
+	          : /* otherwise */             false;
+
+	if(!tasks) {
+		throw new TypeError(`${util.inspect(spec)} is not a valid task spec`);
+	}
 
 	return {
 		task: util.deprecate((name) => run(tasks, name), 'task has been renamed run'),
