@@ -1,13 +1,12 @@
-/* jshint esnext: true, undef: true, node: true */
 var toposort = require("toposort");
-var pattern  = require("./pattern");
 var iter     = require("es6-iterator");
 var Symbol   = require("es6-symbol");
-var WeakMap  = require("es6-weak-map");
-var {concatMap, find} = require("data.array");
 var util     = require("util");
+var {concatMap, find} = require("data.array");
 
-var depsStore = new WeakMap();
+var pattern   = require("./pattern");
+var anns      = require("./annotations");
+var {getDeps} = require("./deps");
 
 function resolveSpec(tasks, name) {
 	if(name in tasks) {
@@ -32,19 +31,6 @@ function resolveTask(tasks, name) {
 
 function getTask(tasks, {pattern, name}) {
 	return tasks[pattern || name];
-}
-
-function getDeps(task, spec = {}) {
-	var deps = concatMap(dep => [].concat(
-		typeof dep === 'function'? dep(spec.name, spec.stem, spec)
-		/* otherwise */          : dep
-	), depsStore.get(task) || []);
-
-	if(spec.stem) {
-		return deps.map(d => pattern.interpolate(d, spec.stem));
-	} else {
-		return deps;
-	}
 }
 
 function findEdges(tasks, name, stack = []) {
@@ -101,7 +87,7 @@ module.exports = function factory(spec) {
 	var tasks = spec.call({
 		dep(...deps) {
 			var fn = deps.pop();
-			depsStore.set(fn, deps);
+			anns.dep(...deps)(fn);
 			return fn;
 		}
 	});
