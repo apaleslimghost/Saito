@@ -2,9 +2,9 @@ var WeakMap     = require("es6-weak-map");
 var pattern     = require("./pattern");
 var {concatMap} = require("data.array");
 
-var depsStore = exports.depsStore = new WeakMap();
+var depsStore = new WeakMap();
 
-exports.getDeps = function getDeps(task, spec = {}) {
+module.exports = function getDeps(task, spec = {}) {
 	var deps = concatMap(dep => [].concat(
 		typeof dep === 'function'? dep(spec.name, spec.stem, spec)
 		/* otherwise */          : dep
@@ -16,3 +16,5 @@ exports.getDeps = function getDeps(task, spec = {}) {
 		return deps;
 	}
 };
+
+module.exports.depsStore = depsStore;

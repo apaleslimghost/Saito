@@ -1,63 +1,12 @@
-var toposort = require("toposort");
-var iter     = require("es6-iterator");
-var Symbol   = require("es6-symbol");
-var util     = require("util");
-var {concatMap, find} = require("data.array");
-
-var pattern   = require("./pattern");
-var anns      = require("./annotations");
-var {getDeps} = require("./deps");
-
-function resolveSpec(tasks, name) {
-	if(name in tasks) {
-		return {name};
-	}
-
-	var maybeName = find(pattern.match([name]), Object.keys(tasks));
-	if(maybeName.isJust) {
-		return {name: maybeName.get()};
-	}
-
-	var spec = pattern.match(Object.keys(tasks), name);
-	if(spec) return spec;
-
-	throw new ReferenceError(`No such task ${name}`);
-}
-
-function resolveTask(tasks, name) {
-	var spec = resolveSpec(tasks, name);
-	return {spec, task: getTask(tasks, spec)};
-}
-
-function getTask(tasks, {pattern, name}) {
-	return tasks[pattern || name];
-}
-
-function findEdges(tasks, name, stack = []) {
-	if(stack.indexOf(name) !== -1) {
-		throw new Error(`Circular dependency: ${stack.concat(name).join(" → ")}`);
-	}
-
-	var {spec, task} = resolveTask(tasks, name);
-	var deps = getDeps(task, spec);
-
-	return concatMap(
-		x => findEdges(tasks, x, stack.concat(name)),
-		deps
-	).concat(deps.map(dep => [name, dep]));
-}
-
-function edges(tasks, start) {
-	if(start) {
-		return findEdges(tasks, start);
-	} else {
-		return concatMap(name => {
-			return getDeps(tasks[name]).map(dep => {
-				return [name, dep];
-			});
-		}, Object.keys(tasks));
-	}
-}
+var toposort    = require("toposort");
+var iter        = require("es6-iterator");
+var Symbol      = require("es6-symbol");
+var util        = require("util");
+var pattern     = require("./pattern");
+var anns        = require("./annotations");
+var getDeps     = require("./deps");
+var resolveTask = require("./resolve");
+var edges       = require("./edges");
 
 function run(tasks, name) {
 	var results = {};
