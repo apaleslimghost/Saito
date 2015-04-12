@@ -7,5 +7,10 @@ lib/%.js: src/%.js
 	@mkdir -p $(@D)
 	node_modules/.bin/babel $< > $@
 
-test: all test.js
-	./node_modules/.bin/mocha -u exports
+test: all lint test.js
+	node_modules/.bin/mocha -u exports
+
+lint: $(SRC_FILES) .jshintrc
+	node_modules/.bin/jshint --reporter node_modules/jshint-stylish/stylish.js $(SRC_FILES)
+
+.PHONY: test lint

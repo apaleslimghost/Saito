@@ -26,4 +26,4 @@ module.exports = function edges(tasks, start) {
 			});
 		}, Object.keys(tasks));
 	}
-}
+};

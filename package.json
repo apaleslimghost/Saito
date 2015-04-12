@@ -23,6 +23,8 @@
   "homepage": "https://github.com/quarterto/Saito",
   "devDependencies": {
     "babel": "^5.0.12",
+    "jshint": "^2.7.0",
+    "jshint-stylish": "^1.0.1",
     "karma-sinon-expect": "^0.1.4",
     "mocha": "^2.2.4"
   },

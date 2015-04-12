@@ -1,6 +1,5 @@
 var toposort    = require("toposort");
 var util        = require("util");
-var pattern     = require("./pattern");
 var anns        = require("./annotations");
 var getDeps     = require("./deps");
 var resolveTask = require("./resolve");
