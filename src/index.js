@@ -1,6 +1,4 @@
 var toposort    = require("toposort");
-var iter        = require("es6-iterator");
-var Symbol      = require("es6-symbol");
 var util        = require("util");
 var pattern     = require("./pattern");
 var anns        = require("./annotations");

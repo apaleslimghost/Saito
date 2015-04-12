@@ -29,8 +29,6 @@
   "dependencies": {
     "curry": "^1.2.0",
     "data.array": "^0.1.3",
-    "es6-iterator": "^0.1.3",
-    "es6-symbol": "^2.0.1",
     "es6-weak-map": "^0.1.2",
     "toposort": "^0.2.10"
   }
