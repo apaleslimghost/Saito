@@ -2,6 +2,7 @@ var {depsStore} = require("./deps");
 
 exports.dep = function(...deps) {
 	return function(fn) {
-		depsStore.set(fn, deps);
+		var current = depsStore.get(fn) || [];
+		depsStore.set(fn, current.concat(deps));
 	};
 };
