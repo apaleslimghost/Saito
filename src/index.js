@@ -40,3 +40,5 @@ module.exports = function factory(spec) {
 
 	return (name) => run(tasks, name);
 };
+
+util._extend(module.exports, context);
