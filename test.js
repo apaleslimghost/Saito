@@ -227,6 +227,42 @@ exports.Saito = {
         });
         expect(t.run('a.a')).to.be('aB');
         expect(t.run('b.a')).to.be('aC');
+      },
+      'dep functions': {
+        'should call dep functions with helpful things': function(done){
+          var t = saito(function(){
+            return {
+              '%.a': this.dep(function(name, stem, spec) {
+                expect(name).to.be('a.a');
+                expect(stem).to.be('a');
+                expect(spec).to.eql({
+                  name: 'a.a',
+                  stem: 'a',
+                  pattern: '%.a'
+                });
+                return [];
+              }, function() {
+                done();
+              })
+            };
+          });
+          t.run('a.a');
+        },
+        'should use dep function return': function(){
+            var t = saito(function(){
+              return {
+                '%.a': this.dep(function(name, stem, spec) {
+                  return ['%.b'];
+                }, function(b) {
+                  return 'a' + b;
+                }),
+                '%.b': function() {
+                  return 'b';
+                }
+              };
+            });
+            expect(t.run('a.a')).to.be('ab');
+          }
       }
     },
     'context': {

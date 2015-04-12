@@ -35,7 +35,10 @@ function getTask(tasks, {pattern, name}) {
 }
 
 function getDeps(task, spec = {}) {
-	var deps = depsStore.get(task) || [];
+	var deps = concatMap(dep => [].concat(
+		typeof dep === 'function'? dep(spec.name, spec.stem, spec)
+		/* otherwise */          : dep
+	), depsStore.get(task) || []);
 
 	if(spec.stem) {
 		return deps.map(d => pattern.interpolate(d, spec.stem));
