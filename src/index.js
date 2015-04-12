@@ -6,10 +6,10 @@ var resolveTask = require("./resolve");
 var edges       = require("./edges");
 
 function run(tasks, name) {
-	var results = {};
 	var order = toposort(edges(tasks, name)).reverse();
+	if(!order.length) order = [name];
 
-	(order.length ? order : [name]).forEach((t, i, order) => {
+	var results = order.reduce((results, t, i) => {
 		var {spec, task} = resolveTask(tasks, t);
 		var args = getDeps(task, spec).map(d => {
 			return results[resolveTask(tasks, d).spec.name];
@@ -23,8 +23,10 @@ function run(tasks, name) {
 			next: order.slice(i + 1)
 		};
 
-		results[spec.name] = task.apply(context, args);
-	});
+		return util._extend(results, {
+			[spec.name]: task.apply(context, args)
+		});
+	}, {});
 
 	return results[resolveTask(tasks, name).spec.name];
 }
