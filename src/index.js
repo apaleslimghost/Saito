@@ -25,10 +25,7 @@ function run(tasks, name, cachedTask = createTaskCache()) {
 	return getDeps(task, spec)
 	.flatMap(d => run(tasks, d, cachedTask))
 	.collect()
-	.flatMap(depArgs => {
-		var context = {spec};
-		return cachedTask(task, name).apply(context, depArgs);
-	});
+	.flatMap(depArgs => cachedTask(spec.name, task).apply({spec}, depArgs));
 }
 
 module.exports = function factory(spec) {
