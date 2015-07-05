@@ -1,4 +1,5 @@
 var {depsStore} = require("./deps");
+var σ = require("highland");
 
 function objDeco(fn) {
 	return function(obj, key, def) {
@@ -16,7 +17,7 @@ exports.unObjDeco = function unObjDeco(fn) {
 
 exports.dep = function dep(...deps) {
 	return objDeco(function depDeco(fn) {
-		var current = depsStore.get(fn) || [];
+		var current = σ(depsStore.get(fn) || []);
 		depsStore.set(fn, current.concat(deps));
 	});
 };

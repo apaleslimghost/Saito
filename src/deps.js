@@ -1,14 +1,13 @@
-var WMap        = require("es6-weak-map");
-var pattern     = require("./pattern");
-var {concatMap} = require("data.array");
+var pattern      = require("./pattern");
+var streamCoerce = require("@quarterto/stream-coerce");
 
-var depsStore = new WMap();
+var depsStore = new WeakMap();
 
 module.exports = function getDeps(task, spec = {}) {
-	var deps = concatMap(dep => [].concat(
+	var deps = streamCoerce(depsStore.get(task) || []).flatMap(dep => [].concat(
 		typeof dep === 'function'? dep(spec.name, spec.stem, spec)
 		/* otherwise */          : dep
-	), depsStore.get(task) || []);
+	));
 
 	if(spec.stem) {
 		return deps.map(d => pattern.interpolate(d, spec.stem));

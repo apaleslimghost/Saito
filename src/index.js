@@ -1,34 +1,34 @@
-var toposort    = require("toposort");
-var util        = require("util");
-var context     = require("./context");
-var getDeps     = require("./deps");
-var resolveTask = require("./resolve");
-var edges       = require("./edges");
+var util         = require("util");
+var context      = require("./context");
+var getDeps      = require("./deps");
+var resolveTask  = require("./resolve");
+var streamCoerce = require("@quarterto/stream-coerce");
 
-function run(tasks, name) {
-	var order = toposort(edges(tasks, name)).reverse();
-	if(!order.length) order = [name];
+function createTaskCache() {
+	var cache = new Map();
+	return function cachedTask(name, fn) {
+		return function(...args) {
+			if(cache.has(name)) {
+				return cache.get(name);
+			}
 
-	var results = order.reduce((results, t, i) => {
-		var {spec, task} = resolveTask(tasks, t);
-		var args = getDeps(task, spec).map(d => {
-			return results[resolveTask(tasks, d).spec.name];
-		});
-
-		var context = {
-			spec,
-			order,
-			parent: order[i - 1],
-			previous: order.slice(0, i),
-			next: order.slice(i + 1)
+			var stream = streamCoerce(fn.apply(this, args));
+			cache.set(name, stream.fork());
+			return stream;
 		};
+	};
+}
 
-		return util._extend(results, {
-			[spec.name]: task.apply(context, args)
-		});
-	}, {});
+function run(tasks, name, cachedTask = createTaskCache()) {
+	var {spec, task} = resolveTask(tasks, name);
 
-	return results[resolveTask(tasks, name).spec.name];
+	return getDeps(task, spec)
+	.flatMap(d => run(tasks, d, cachedTask))
+	.collect()
+	.flatMap(depArgs => {
+		var context = {spec};
+		return cachedTask(task, name).apply(context, depArgs);
+	});
 }
 
 module.exports = function factory(spec) {

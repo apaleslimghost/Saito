@@ -6,7 +6,7 @@ all: $(LIB_FILES)
 
 lib/%.js: src/%.js
 	@mkdir -p $(@D)
-	node_modules/.bin/babel $< > $@
+	node_modules/.bin/babel --optional runtime $< > $@
 
 test: all lint $(TST_FILES)
 	node_modules/.bin/mocha -u exports

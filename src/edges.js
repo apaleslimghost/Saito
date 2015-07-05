@@ -1,6 +1,6 @@
-var {concatMap} = require("data.array");
 var getDeps     = require("./deps");
 var resolveTask = require("./resolve");
+var σ           = require("highland");
 
 function findEdges(tasks, name, stack = []) {
 	if(stack.indexOf(name) !== -1) {
@@ -10,9 +10,8 @@ function findEdges(tasks, name, stack = []) {
 	var {spec, task} = resolveTask(tasks, name);
 	var deps = getDeps(task, spec);
 
-	return concatMap(
-		x => findEdges(tasks, x, stack.concat(name)),
-		deps
+	return deps.fork().flatMap(
+		x => findEdges(tasks, x, stack.concat(name))
 	).concat(deps.map(dep => [name, dep]));
 }
 
@@ -20,10 +19,10 @@ module.exports = function edges(tasks, start) {
 	if(start) {
 		return findEdges(tasks, start);
 	} else {
-		return concatMap(name => {
-			return getDeps(tasks[name]).map(dep => {
-				return [name, dep];
-			});
-		}, Object.keys(tasks));
+		return σ(Object.keys(tasks)).flatMap(
+			name => getDeps(tasks[name]).map(
+				dep => [name, dep]
+			)
+		);
 	}
 };
