@@ -2,28 +2,14 @@ var util         = require("util");
 var context      = require("./context");
 var getDeps      = require("./deps");
 var resolveTask  = require("./resolve");
-var streamCoerce = require("@quarterto/stream-coerce");
+var createStreamCache = require('./stream-cache');
 
-function createTaskCache() {
-	var cache = new Map();
-	return function cachedTask(name, fn) {
-		return function(...args) {
-			if(cache.has(name)) {
-				return cache.get(name);
-			}
-
-			var stream = streamCoerce(fn.apply(this, args));
-			cache.set(name, stream.fork());
-			return stream;
-		};
-	};
-}
-
-function run(tasks, name, cachedTask = createTaskCache()) {
+function run(tasks, name, cachedTask = createStreamCache(), stack = []) {
 	var {spec, task} = resolveTask(tasks, name);
+	if(~stack.indexOf(spec.name)) throw new Error(`Circular dependency: ${stack.concat(spec.name).join(' → ')}`);
 
 	return getDeps(task, spec)
-	.flatMap(d => run(tasks, d, cachedTask))
+	.flatMap(d => run(tasks, d, cachedTask, stack.concat(spec.name)))
 	.collect()
 	.flatMap(depArgs => cachedTask(spec.name, task).apply({spec}, depArgs));
 }

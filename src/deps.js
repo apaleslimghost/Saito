@@ -4,7 +4,8 @@ var streamCoerce = require("@quarterto/stream-coerce");
 var depsStore = new WeakMap();
 
 module.exports = function getDeps(task, spec = {}) {
-	var deps = streamCoerce(depsStore.get(task) || []).flatMap(dep => [].concat(
+	var d = depsStore.get(task);
+	var deps = streamCoerce(d ? d() : []).flatMap(dep => [].concat(
 		typeof dep === 'function'? dep(spec.name, spec.stem, spec)
 		/* otherwise */          : dep
 	));

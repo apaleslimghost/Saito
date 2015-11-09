@@ -9,7 +9,7 @@ lib/%.js: src/%.js
 	node_modules/.bin/babel --optional runtime $< > $@
 
 test: all lint $(TST_FILES)
-	node_modules/.bin/mocha -u exports
+	node_modules/.bin/mocha -u exports -r babel/register
 
 lint: $(SRC_FILES) .jshintrc
 	node_modules/.bin/jshint --reporter node_modules/jshint-stylish/stylish.js $(SRC_FILES)

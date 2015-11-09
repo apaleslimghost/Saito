@@ -15,50 +15,58 @@ function nthBack(n, cb) {
 
 exports.Saito = {
   'spec': {
-    'can be a function': function() {
-      expect(saito(function() {
-        return {a: function() { return 'a'; }};
-      })('a')).to.be('a');
+    'can be a function'(done) {
+      saito(() => ({
+        a: () => 'a'
+      }))('a').apply((x) => {
+        expect(x).to.be('a');
+        done();
+      });
     },
-    'can be a plain object': function() {
-      expect(saito({
-        a: function() { return 'a'; }
-      })('a')).to.be('a');
+    'can be a plain object'(done) {
+      saito({
+        a: () => 'a'
+      })('a').apply((x) => {
+        expect(x).to.be('a');
+        done();
+      });
     },
-    'throws when it\'s something unexpected': function() {
+    'throws when it\'s something unexpected'() {
       expect(function() {
         saito("ohai");
       }).to.throwException(/'ohai' is not a valid task spec/);
     }
   },
   'task': {
-    'should return the result of a task': function(){
+    'should return a stream for the result of a task'(done) {
       var r = {};
-      var t = saito(function(){
-        return {
-          a: function(){
-            return r;
-          }
-        };
+      var t = saito({
+        a: () => r
       });
-      expect(t('a')).to.be(r);
+      t('a').apply(x => {
+        expect(x).to.be(r);
+        done();
+      });
     },
-    'should resolve simple dependencies': function(){
+    'should resolve simple dependencies'(done) {
       var r = {};
       var a = sinon.stub();
       a.withArgs('intermediate').returns(r);
       var t = saito(function(){
         return {
           a: this.dep('b', a),
-          b: function(){
+          b(){
             return 'intermediate';
           }
         };
       });
-      expect(t('a')).to.be(r);
-      expect(a).was.calledWith('intermediate');
+      t('a').apply(x => {
+        expect(x).to.be(r);
+        expect(a).was.calledWith('intermediate');
+        done();
+      })
     },
-    'should resolve dependency chains': function(){
+    'should resolve dependency chains'(done){
       var a = sinon.stub();
       var b = sinon.stub();
       a.withArgs('b').returns('a');
@@ -67,33 +75,39 @@ exports.Saito = {
         return {
           a: this.dep('b', a),
           b: this.dep('c', b),
-          c: function(){
+          c(){
             return 'c';
           }
         };
       });
-      expect(t('a')).to.be('a');
-      expect(a).was.calledWith('b');
-      expect(b).was.calledWith('c');
+      t('a').apply(x => {
+        expect(x).to.be('a');
+        expect(a).was.calledWith('b');
+        expect(b).was.calledWith('c');
+        done();
+      });
     },
-    'should resolve multiple dependencies': function(){
+    'should resolve multiple dependencies'(done){
       var a = sinon.stub();
       a.withArgs('b', 'c').returns('a');
       var t = saito(function(){
         return {
           a: this.dep('b', 'c', a),
-          b: function(){
+          b(){
             return 'b';
           },
-          c: function(){
+          c(){
             return 'c';
           }
         };
       });
-      expect(t('a')).to.be('a');
-      expect(a).was.calledWith('b', 'c');
+      t('a').apply(x => {
+        expect(x).to.be('a');
+        expect(a).was.calledWith('b', 'c');
+        done();
+      });
     },
-    'should call each dependency once': function(){
+    'should call each dependency once'(done){
       var d = sinon.stub();
       var t = saito(function(){
         return {
@@ -103,10 +117,12 @@ exports.Saito = {
           d: d
         };
       });
-      t('a');
-      expect(d).was.calledOnce();
+      t('a').done(() => {
+        expect(d).was.calledOnce();
+        done();
+      });
     },
-    'should barf on circular dependencies': function(){
+    'should barf on circular dependencies'(done){
       var d = sinon.stub();
       var t = saito(function(){
         return {
@@ -114,48 +130,58 @@ exports.Saito = {
           b: this.dep('a', function(){})
         };
       });
-      expect(function(){
-        return t('a');
-      }).to.throwError(/Circular dependency: a → b → a/);
+      t('a').stopOnError(e => {
+        expect(e.message).to.match(/Circular dependency: a → b → a/);
+        done();
+      }).apply(() => {});
     },
-    'should match tasks on patterns': function(){
+    'should match tasks on patterns'(done){
       var t = saito(function(){
         return {
-          '%.txt': function(){
+          '%.txt'(){
             return 'a';
           }
         };
       });
-      expect(t('file.txt')).to.be('a');
+      t('file.txt').apply(x => {
+        expect(x).to.be('a');
+        done();
+      });
     },
     'templates': {
-      'should run tasks by filling in templates': function(){
+      'should run tasks by filling in templates'(done){
         var t = saito(function(){
           return {
-            '%.a': function(){
+            '%.a'(){
               return 'a';
             }
           };
         });
-        expect(t('a.a')).to.be('a');
+        t('a.a').apply(x => {
+          expect(x).to.be('a');
+          done();
+        });
       },
-      'should prefer exact matches to templates': function(){
+      'should prefer exact matches to templates'(done){
         var t = saito(function(){
           return {
-            'a.a': function(){
+            'a.a'(){
               return 'a';
             },
-            '%.a': function(){
+            '%.a'(){
               return 'b';
             }
           };
         });
-        expect(t('a.a')).to.be('a');
+        t('a.a').apply(x => {
+          expect(x).to.be('a');
+          done();
+        });
       },
-      'should do dependencies by filling in templates': function(){
+      'should do dependencies by filling in templates'(done){
         var t = saito(function(){
           return {
-            'a.a': function(){
+            'a.a'(){
               return 'a';
             },
             '%.b': this.dep('%.a', function(it){
@@ -163,15 +189,18 @@ exports.Saito = {
             })
           };
         });
-        expect(t('a.b')).to.be('A');
+        t('a.b').apply(x => {
+          expect(x).to.be('A');
+          done();
+        });
       },
-      'should work out which wildcard dependency to use': function(){
+      'should work out which wildcard dependency to use'(done){
         var t = saito(function(){
           return {
-            'a.a': function(){
+            'a.a'(){
               return 'a';
             },
-            'b.a': function(){
+            'b.a'(){
               return 'b';
             },
             '%.b': this.dep('%.a', function(it){
@@ -179,24 +208,30 @@ exports.Saito = {
             })
           };
         });
-        expect(t('a.b')).to.be('A');
-        expect(t('b.b')).to.be('B');
+        t('a.b').concat(t('b.b')).apply((a,b) => {
+          expect(a).to.be('A');
+          expect(b).to.be('B');
+          done();
+        })
       },
-      'should fall back to wildcard if there isn\'t a specific rule': function(){
+      'should fall back to wildcard if there isn\'t a specific rule'(done){
         var t = saito(function(){
           return {
-            'a.a': function(){
+            'a.a'(){
               return 'a';
             },
-            '%.a': function(){
+            '%.a'(){
               return 'b';
             }
           };
         });
-        expect(t('a.a')).to.be('a');
-        expect(t('b.a')).to.be('b');
+        t('a.a').concat(t('b.a')).apply((a,b) => {
+          expect(a).to.be('a');
+          expect(b).to.be('b');
+          done();
+        });
       },
-      'should do transitive wildcard dependencies': function(){
+      'should do transitive wildcard dependencies'(done){
         var t = saito(function(){
           return {
             '%.a': this.dep('%.b', (function(it){
@@ -205,17 +240,20 @@ exports.Saito = {
             '%.b': this.dep('%.c', function(it){
               return it.toUpperCase();
             }),
-            'a.c': function(){
+            'a.c'(){
               return 'b';
             }
           };
         });
-        expect(t('a.a')).to.be('aB');
+        t('a.a').apply(x => {
+          expect(x).to.be('aB');
+          done();
+        });
       },
-      'should error if it can\'t find a concrete wildcard depencency': function(){
+      'should error if it can\'t find a concrete wildcard depencency'(done){
         var t = saito(function(){
           return {
-            'a.a': function(){
+            'a.a'(){
               return 'a';
             },
             '%.b': this.dep('%.a', function(it){
@@ -223,11 +261,12 @@ exports.Saito = {
             })
           };
         });
-        expect(function(){
-          return t('b.a');
-        }).to.throwError('No such task b.a');
+        t('b.b').stopOnError(e => {
+          expect(e.message).to.match(/No such task b.a/);
+          done();
+        }).apply(() => {});
       },
-      'should find concretes for transitive dependencies': function(){
+      'should find concretes for transitive dependencies'(done){
         var t = saito(function(){
           return {
             '%.a': this.dep('%.b', (function(it){
@@ -236,19 +275,23 @@ exports.Saito = {
             '%.b': this.dep('%.c', function(it){
               return it.toUpperCase();
             }),
-            'a.c': function(){
+            'a.c'(){
               return 'b';
             },
-            'b.c': function(){
+            'b.c'(){
               return 'c';
             }
           };
         });
-        expect(t('a.a')).to.be('aB');
-        expect(t('b.a')).to.be('aC');
+
+        t('a.a').concat(t('b.a')).apply((a,b) => {
+          expect(a).to.be('aB');
+          expect(b).to.be('aC');
+          done();
+        });
       },
       'dep functions': {
-        'should call dep functions with helpful things': function(done){
+        'should call dep functions with helpful things'(done){
           var t = saito(function(){
             return {
               '%.a': this.dep(function(name, stem, spec) {
@@ -265,9 +308,9 @@ exports.Saito = {
               })
             };
           });
-          t('a.a');
+          t('a.a').apply(() => {});
         },
-        'should use dep function return': function(){
+        'should use dep function return'(done){
             var t = saito(function(){
               return {
                 '%.a': this.dep(function(name, stem, spec) {
@@ -275,91 +318,29 @@ exports.Saito = {
                 }, function(b) {
                   return 'a' + b;
                 }),
-                '%.b': function() {
+                '%.b'() {
                   return 'b';
                 }
               };
             });
-            expect(t('a.a')).to.be('ab');
+            t('a.a').apply(x => {
+              expect(x).to.be('ab');
+              done();
+            });
           }
       }
     },
     'context': {
-      'should contain current spec': function(done) {
+      'should contain current spec'(done) {
         var t = saito(function() {
-          return {'a': function() {
+          return {'a'() {
             expect(this).to.have.property('spec');
             expect(this.spec).to.have.property('name', 'a');
             done();
           }};
         });
 
-        t('a');
-      },
-      'should contain full task order': function(done) {
-        var t = saito(function() {
-          return {
-            'a': this.dep('b', function() {
-              expect(this).to.have.property('order');
-              expect(this.order).to.eql(['b', 'a']);
-              done();
-            }),
-            'b': function() {}
-          };
-        });
-        t('a');
-      },
-      'should contain parent task': function(done) {
-        var t = saito(function() {
-          return {
-            'a': this.dep('b', function() {
-              expect(this).to.have.property('parent', 'b');
-              done();
-            }),
-            'b': function() {}
-          };
-        });
-        t('a');
-      },
-      'should contain remaining tasks': function(done) {
-        var thrice = nthBack(3, done);
-        var t = saito(function() {
-          return {
-            'a': this.dep('b', function() {
-              expect(this.next).to.eql([]);
-              thrice();
-            }),
-            'b': this.dep('c', function() {
-              expect(this.next).to.eql(['a']);
-              thrice();
-            }),
-            'c': function() {
-              expect(this.next).to.eql(['b', 'a']);
-              thrice();
-            }
-          };
-        });
-        t('a');
-      },
-      'should contain previous tasks': function(done) {
-        var thrice = nthBack(3, done);
-        var t = saito(function() {
-          return {
-            'a': this.dep('b', function() {
-              expect(this.previous).to.eql(['c', 'b']);
-              thrice();
-            }),
-            'b': this.dep('c', function() {
-              expect(this.previous).to.eql(['c']);
-              thrice();
-            }),
-            'c': function() {
-              expect(this.previous).to.eql([]);
-              thrice();
-            }
-          };
-        });
-        t('a');
+        t('a').apply(() => {});
       }
     }
   }

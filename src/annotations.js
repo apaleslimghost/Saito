@@ -1,8 +1,8 @@
 var {depsStore} = require("./deps");
-var σ = require("highland");
+var streamCoerce = require("@quarterto/stream-coerce");
 
 function objDeco(fn) {
-	return function(obj, key, def) {
+	return (obj, key, def) => {
 		var v = fn(obj[key], key, obj, def);
 		if(v) def.value = v;
 		return def;
@@ -10,14 +10,11 @@ function objDeco(fn) {
 }
 
 exports.unObjDeco = function unObjDeco(fn) {
-	return function(value) {
-		return fn({__tmp: value}, "__tmp", {value}).value;
-	};
+	return value => fn({__tmp: value}, "__tmp", {value}).value;
 };
 
 exports.dep = function dep(...deps) {
-	return objDeco(function depDeco(fn) {
-		var current = σ(depsStore.get(fn) || []);
-		depsStore.set(fn, current.concat(deps));
+	return objDeco(fn => {
+		depsStore.set(fn, () => streamCoerce(deps));
 	});
 };
