@@ -3,7 +3,7 @@
 	<a href="https://travis-ci.org/quarterto/Saito"><img alt="Build status" src="https://travis-ci.org/quarterto/Saito.svg?branch=master"></a>
 </h1>
 
-Declarative task dependencies
+Make-style declarative task dependencies
 
 Install
 -------
@@ -16,17 +16,19 @@ Use
 ---
 
 ```javascript
-var env = require('saito')(function () {
+var task = require('saito')(function () {
 	return {
 		'%.upper': this.dep('%.lower', (str) => str.toUpperCase()),
 		'hello.lower': () => 'hello'
 	}
 }))
 
-env.task('hello.upper') //⇒ HELLO
+task('hello.upper').apply(x => {
+	console.log(x); //⇒ HELLO
+});
 ```
 
-Saito builds a DAG of task dependencies, toposorts them and runs tasks in order. `%` wildcard dependencies are filled in with concrete values using file stems.
+`%` wildcard dependencies are filled in with concrete values using file stems.
 
 Licence
 -------
