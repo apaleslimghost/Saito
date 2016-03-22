@@ -1,6 +1,7 @@
 <h1 align="center">
 	<img alt="Saito" src="logo.png" width="300"><br>
 	<a href="https://travis-ci.org/quarterto/Saito"><img alt="Build status" src="https://travis-ci.org/quarterto/Saito.svg?branch=master"></a>
+	<a href="https://www.npmjs.com/package/saito"><img src="https://img.shields.io/npm/v/saito.svg" alt="npm"></a>
 </h1>
 
 Make-style declarative task dependencies
