@@ -24,12 +24,14 @@
   "devDependencies": {
     "babel": "^5.0.12",
     "expect.js": "^0.3.1",
+    "ghooks": "^1.0.3",
     "jshint": "^2.7.0",
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.2.4",
+    "semantic-release": "^4.3.5",
     "sinon": "^1.14.1",
     "sinon-expect": "^0.2.0",
-    "semantic-release": "^4.3.5"
+    "validate-commit-msg": "^2.4.1"
   },
   "dependencies": {
     "@quarterto/stream-coerce": "^1.0.0",
@@ -39,5 +41,13 @@
     "es6-weak-map": "^0.1.2",
     "highland": "^2.5.1",
     "toposort": "^0.2.10"
+  },
+  "config": {
+    "ghooks": {
+      "commit-msg": "validate-commit-msg",
+      "pre-push": "npm test",
+      "post-merge": "npm install",
+      "post-rewrite": "npm install"
+    }
   }
 }
