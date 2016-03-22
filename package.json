@@ -1,15 +1,15 @@
 {
   "name": "saito",
-  "version": "1.0.0",
   "description": "task dependency specifier",
   "main": "lib",
   "scripts": {
     "test": "make test",
-    "prepublish": "make"
+    "prepublish": "make",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/quarterto/Saito.git"
+    "url": "https://github.com/quarterto/Saito.git"
   },
   "keywords": [
     "tasks",
@@ -28,7 +28,8 @@
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.2.4",
     "sinon": "^1.14.1",
-    "sinon-expect": "^0.2.0"
+    "sinon-expect": "^0.2.0",
+    "semantic-release": "^4.3.5"
   },
   "dependencies": {
     "@quarterto/stream-coerce": "^1.0.0",
